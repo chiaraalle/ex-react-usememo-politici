@@ -1,14 +1,25 @@
-/*Milestone 2: Implementare la ricerca ottimizzata
-Aggiungi un campo di ricerca (<input type="text">) sopra la lista dei politici.
-Permetti all’utente di filtrare i risultati in base a nome o biografia (se il testo cercato è incluso).
- Suggerimento: Creare un array derivato filtrato, che viene aggiornato solo quando cambia la lista di politici 
- o il valore della ricerca.
-❌ Non usare useEffect per aggiornare l’array filtrato.
+/* Milestone 3: Ottimizzare il rendering delle card con React.memo
+Attualmente, ogni volta che l’utente digita nella barra di ricerca, tutte le card vengono ri-renderizzate, anche quelle che non sono cambiate.
+Usa React.memo() per evitare il ri-render delle card quando le loro props non cambiano.
+Aggiungi un console.log() dentro il componente Card per verificare che venga renderizzato solo quando necessario.
 
-Obiettivo: Migliorare le prestazioni evitando ricalcoli inutili quando il valore della ricerca non cambia.
+Obiettivo: Se la lista filtrata cambia, solo le nuove card devono essere renderizzate, mentre le altre rimangono in memoria senza essere ridisegnate.
 */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, memo } from 'react';
+
+const PoliticiansCard = memo(({ name, image, position, biography }) => {
+  console.log("Render politiciansCard:", name);
+  return (
+    <div className="card">
+      <img src={image} alt={name} />
+      <h4>{name}</h4>
+      <p className="position">Position: {position}</p>
+      <p>{biography}</p>
+    </div>
+  );
+});
+
 
 function App() {
   const [politicians, setPoliticians] = useState([]);
@@ -19,7 +30,6 @@ function App() {
         try{
           const response = await fetch('http://localhost:3333/politicians');
           const data = await response.json();
-          console.log(data)
           setPoliticians(data);
         } catch (error) {
         console.error(error)
@@ -51,12 +61,10 @@ function App() {
     />
     <div className="cards-container">
       {filteredPoliticians.map((politician, index) => (
-        <div className="card" key={index}>
-          <img src={politician.image} alt={politician.name} />
-          <h4>{politician.name}</h4>
-          <p className="position">Position: {politician.position}</p>
-          <p>{politician.biography}</p>
-        </div>
+        <PoliticiansCard
+          key={index}
+          {...politician}
+        />
       ))}
     </div>
     </>
